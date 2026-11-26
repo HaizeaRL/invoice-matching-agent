@@ -16,39 +16,41 @@ def connect_to_database(db_path):
    
     return connection
 
-# main
-if __name__ == "__main__":
-
+def create_database(db_path, schema_path):
     conn = None
     try:
 
         # create data folder if not exist
-        DATA_PATH.mkdir(parents=True, exist_ok=True)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
 
         # read schema first: fail before touching the DB
-        with open(DB_FOLDER_PATH /"schema.sql", encoding="utf-8") as f:
+        with open(schema_path, encoding="utf-8") as f:
             # get schema
             schema_sql = f.read()
 
         # remove bbdd if exist
-        DATABASE_PATH.unlink(missing_ok=True)    
+        db_path.unlink(missing_ok=True)    
             
         # create bbdd with foreign keys ativate
-        conn = connect_to_database(DATABASE_PATH) 
+        conn = connect_to_database(db_path) 
         conn.executescript(schema_sql)
         print("database created")
-
     except Exception as exc:
         print(exc) 
         # if connection is open, close and remove ddbb
         if conn is not None:
             conn.close()
             conn = None
-            DATABASE_PATH.unlink(missing_ok=True)
+            db_path.unlink(missing_ok=True)
         raise
     finally:
         if conn is not None:
             conn.close()
+
+# main
+if __name__ == "__main__":
+    create_database(DATABASE_PATH, DB_FOLDER_PATH /"schema.sql")
 
             
             
